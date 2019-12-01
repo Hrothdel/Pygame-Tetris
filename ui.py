@@ -1,4 +1,5 @@
 import pygame
+import sys
 
 class UI:
     def __init__(self, service, renderer):
@@ -6,13 +7,24 @@ class UI:
         self.__renderer = renderer
 
         self.__renderer.start()
+        self.__renderer.updateGridSize(
+            self.__service.getGridRows(),
+            self.__service.getGridColumns())
+
         self.__exit = False
 
-    def run(self):
+    def __quit(self):
+        pygame.quit()
+        sys.exit()
 
+    def run(self):
         while self.__exit == False:
             self.__handleInput()
-            self.__renderer.render()
+
+            grid = self.__service.getGrid()
+            self.__renderer.render(grid)
+
+        self.__quit()
 
     def __handleInput(self):
         for event in pygame.event.get():
