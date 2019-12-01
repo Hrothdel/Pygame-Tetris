@@ -10,6 +10,9 @@ class UI:
         self.__renderer.updateGridSize(
             self.__service.getGridRows(),
             self.__service.getGridColumns())
+        
+        self.__clock = pygame.time.Clock()
+        self.__framerate = 60
 
         self.__exit = False
 
@@ -19,6 +22,8 @@ class UI:
 
     def run(self):
         while self.__exit == False:
+            self.__clock.tick(self.__framerate)
+
             self.__handleInput()
 
             grid = self.__service.getGrid()
