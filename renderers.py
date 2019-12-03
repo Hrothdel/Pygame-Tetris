@@ -1,4 +1,5 @@
 import pygame
+from entities import Block
 
 class GraphicsRenderer:
     def __init__(self, width, height):
@@ -46,9 +47,10 @@ class GraphicsRenderer:
         self.__grid_vertical_margin = vertical_margin
         self.__grid_horizontal_margin = horizontal_margin
 
-        self.__grid_border_start = (self.__side_panel_left_width +
-            horizontal_margin + self.__grid_border_thickness,
-            vertical_margin + self.__grid_border_thickness)
+        self.__grid_start_x = self.__side_panel_left_width +\
+            horizontal_margin + self.__grid_border_thickness
+        self.__grid_start_y = vertical_margin +\
+            self.__grid_border_thickness
 
         self.__grid_border_size = (self.__grid_width -
             horizontal_margin * 2 -
@@ -84,8 +86,8 @@ class GraphicsRenderer:
         pygame.draw.rect(self.__screen, color, current_rect)
 
     def __renderGridBorder(self):
-        border_rect = pygame.Rect(self.__grid_border_start,
-            self.__grid_border_size)
+        border_rect = pygame.Rect((self.__grid_start_x,
+            self.__grid_start_y), self.__grid_border_size)
 
         self.__drawRectangle(self.__grid_border_color,
             border_rect, self.__grid_border_thickness)
@@ -96,15 +98,15 @@ class GraphicsRenderer:
         # Horizontal lines
         line_start = [self.__side_panel_left_width +
             self.__grid_horizontal_margin +
-            self.__grid_border_thickness,
+            self.__grid_border_thickness - 1,
             self.__grid_vertical_margin +
-            self.__grid_border_thickness]
+            self.__grid_border_thickness - 1]
         line_end = [self.__side_panel_left_width +
             self.__grid_width -
             self.__grid_horizontal_margin -
-            self.__grid_border_thickness,
+            self.__grid_border_thickness - 1,
             self.__grid_vertical_margin +
-            self.__grid_border_thickness]
+            self.__grid_border_thickness - 1]
 
         for _ in range(1, self.__grid_rows):
             line_start[1] += self.__grid_block_size
@@ -118,14 +120,14 @@ class GraphicsRenderer:
         # Vertical lines
         line_start = [self.__side_panel_left_width +
             self.__grid_horizontal_margin +
-            self.__grid_border_thickness,
+            self.__grid_border_thickness - 1,
             self.__grid_vertical_margin +
-            self.__grid_border_thickness]
+            self.__grid_border_thickness - 1]
         line_end = [self.__side_panel_left_width +
             self.__grid_horizontal_margin +
-            self.__grid_border_thickness,
+            self.__grid_border_thickness - 1,
             self.__screen_height - self.__grid_vertical_margin -
-            self.__grid_border_thickness]
+            self.__grid_border_thickness - 1]
 
         for _ in range(1, self.__grid_columns):
             line_start[0] += self.__grid_block_size
@@ -135,9 +137,28 @@ class GraphicsRenderer:
                 self.__grid_lines_color, line_start, line_end,
                 self.__grid_lines_thickness)
 
+    def __renderBlock(self, block):
+        x = block.getX() * self.__grid_block_size +\
+            self.__grid_start_x
+        y = block.getY() * self.__grid_block_size +\
+            self.__grid_start_y
+        color = block.getColor()
+
+        block_rect = pygame.Rect(x, y, self.__grid_block_size,
+            self.__grid_block_size)
+        
+        pygame.draw.rect(self.__screen, color, block_rect)
+
+    def __renderGridBlocks(self, grid):
+        for row in grid:
+            for element in row:
+                if type(element) == Block:
+                    self.__renderBlock(element)
+
     def __renderGrid(self, grid):
         self.__renderGridBorder()
         self.__renderGridLines()
+        self.__renderGridBlocks(grid)
 
     def render(self, grid):
         self.__screen.fill(self.__background_color)

@@ -26,6 +26,8 @@ class UI:
 
             self.__handleInput()
 
+            self.__service.update()
+
             grid = self.__service.getGrid()
             self.__renderer.render(grid)
 
