@@ -16,6 +16,18 @@ class UI:
 
         self.__exit = False
 
+        self.__binds = {
+            pygame.K_LEFT: self.__service.moveLeft,
+            pygame.K_a: self.__service.moveLeft,
+            pygame.K_h: self.__service.moveLeft,
+            pygame.K_RIGHT: self.__service.moveRight,
+            pygame.K_d: self.__service.moveRight,
+            pygame.K_l: self.__service.moveRight,
+            pygame.K_DOWN: self.__service.moveDown,
+            pygame.K_s: self.__service.moveDown,
+            pygame.K_j: self.__service.moveDown,
+        }
+
     def __quit(self):
         pygame.quit()
         sys.exit()
@@ -37,3 +49,6 @@ class UI:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.__exit = True
+            if event.type == pygame.KEYDOWN:
+                if event.key in self.__binds:
+                    self.__binds[event.key]()
