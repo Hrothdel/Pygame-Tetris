@@ -25,8 +25,10 @@ class Piece:
             block_x = block.getX()
             block_y = block.getY()
 
-            block.setX(block_y)
-            block.setY(block_x * (-1))
+            block.setX((block_y - self.__rotation_point_y) +
+                self.__rotation_point_x)
+            block.setY((block_x - self.__rotation_point_x) *
+                (-1) + self.__rotation_point_y)
 
     def getBlocks(self):
         return self.__blocks

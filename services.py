@@ -1,5 +1,7 @@
 import pygame
 from entities import Piece
+from entities import Block
+from exceptions import Collision
 
 class GameService:
     def __init__(self, grid_columns, grid_rows):
@@ -45,9 +47,22 @@ class GameService:
 
         for block in blocks:
             self.__removeBlockFromGrid(block)
+    
+    def __checkPieceCollision(self, piece):
+        blocks = piece.getBlocks()
+
+        for block in blocks:
+            block_x = block.getX()
+            block_y = block.getY()
+
+            if self.__grid[block_y][block_x] != 0:
+                print("collision")
+                raise Collision("Collision")
 
     def __addPieceToGrid(self, piece):
         blocks = piece.getBlocks()
+
+        self.__checkPieceCollision(piece)
 
         for block in blocks:
             self.__addBlockToGrid(block)
@@ -64,22 +79,45 @@ class GameService:
         if type(piece) == Piece:
             self.__removePieceFromGrid(piece)
             piece.move(position_x, position_y)
-            self.__addPieceToGrid(piece)
+
+            try:
+                self.__addPieceToGrid(piece)
+            except Collision:
+                piece.move(position_x * (-1), position_y * (-1))
+                self.__addPieceToGrid(piece)
 
     def moveLeft(self):
         self.__movePiece(-1, 0)
 
     def moveRight(self):
         self.__movePiece(1, 0)
-    
+
     def moveDown(self):
         self.__movePiece(0, 1)
 
     def rotateClockwise(self):
-        self.__controlled_piece.rotateClockwise()
+        piece = self.__controlled_piece
+
+        self.__removePieceFromGrid(piece)
+        piece.rotateClockwise()
+
+        try:
+            self.__addPieceToGrid(piece)
+        except Collision:
+            piece.rotateCounterclockwise()
+            self.__addPieceToGrid(piece)
 
     def rotateCounterclockwise(self):
-        self.__controlled_piece.rotateCounterclockwise()
+        piece = self.__controlled_piece
+
+        self.__removePieceFromGrid(piece)
+        piece.rotateCounterclockwise()
+
+        try:
+            self.__addPieceToGrid(piece)
+        except Collision:
+            piece.rotateClockwise()
+            self.__addPieceToGrid(piece)
 
     def getControlledPiece(self):
         return self.__controlled_piece
