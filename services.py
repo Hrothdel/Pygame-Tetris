@@ -21,6 +21,8 @@ class GameService:
                 row.append(0)
             self.__grid.append(row)
 
+        self.__grid[12][5] = 1#Block(5, 12, pygame.Color(0, 255, 0))
+
     def getGridRows(self):
         return self.__grid_rows
 
@@ -85,6 +87,9 @@ class GameService:
             except Collision:
                 piece.move(position_x * (-1), position_y * (-1))
                 self.__addPieceToGrid(piece)
+
+                if position_y == 1:
+                    self.__spawnControlledPiece()
 
     def moveLeft(self):
         self.__movePiece(-1, 0)
