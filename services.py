@@ -75,6 +75,12 @@ class GameService:
     def moveDown(self):
         self.__movePiece(0, 1)
 
+    def rotateClockwise(self):
+        self.__controlled_piece.rotateClockwise()
+
+    def rotateCounterclockwise(self):
+        self.__controlled_piece.rotateCounterclockwise()
+
     def getControlledPiece(self):
         return self.__controlled_piece
 

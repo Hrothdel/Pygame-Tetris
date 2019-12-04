@@ -26,6 +26,9 @@ class UI:
             pygame.K_DOWN: self.__service.moveDown,
             pygame.K_s: self.__service.moveDown,
             pygame.K_j: self.__service.moveDown,
+            pygame.K_UP: self.__service.rotateClockwise,
+            pygame.K_w: self.__service.rotateClockwise,
+            pygame.K_k: self.__service.rotateClockwise,
         }
 
     def __quit(self):
