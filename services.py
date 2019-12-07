@@ -14,14 +14,22 @@ class GameService:
 
     def __initializeGrid(self):
         self.__grid = []
+        extra_rows = 5
 
-        for _ in range(self.__grid_rows):
+        for row_index in range(self.__grid_rows + extra_rows):
             row = []
-            for _ in range(self.__grid_columns):
-                row.append(0)
+            for column_index in range(self.__grid_columns + 2):
+                if row_index == self.__grid_rows +\
+                    extra_rows - 1 or\
+                    column_index == 0 or\
+                    column_index == self.__grid_columns + 1:
+                    row.append(1)
+                else:
+                    row.append(0)
             self.__grid.append(row)
 
-        self.__grid[12][5] = 1#Block(5, 12, pygame.Color(0, 255, 0))
+        self.__grid_offset_x = 1
+        self.__grid_offset_y = 4
 
     def getGridRows(self):
         return self.__grid_rows
@@ -33,14 +41,14 @@ class GameService:
         return self.__grid
 
     def __removeBlockFromGrid(self, block):
-        position_x = block.getX()
-        position_y = block.getY()
+        position_x = block.getX() + self.__grid_offset_x
+        position_y = block.getY() + self.__grid_offset_y
 
         self.__grid[position_y][position_x] = 0
 
     def __addBlockToGrid(self, block):
-        position_x = block.getX()
-        position_y = block.getY()
+        position_x = block.getX() + self.__grid_offset_x
+        position_y = block.getY() + self.__grid_offset_y
 
         self.__grid[position_y][position_x] = block
 
@@ -54,11 +62,10 @@ class GameService:
         blocks = piece.getBlocks()
 
         for block in blocks:
-            block_x = block.getX()
-            block_y = block.getY()
+            block_x = block.getX() + self.__grid_offset_x
+            block_y = block.getY() + self.__grid_offset_y
 
             if self.__grid[block_y][block_x] != 0:
-                print("collision")
                 raise Collision("Collision")
 
     def __addPieceToGrid(self, piece):
@@ -71,7 +78,7 @@ class GameService:
 
     def __spawnControlledPiece(self):
         piece_color = pygame.Color(255, 0, 0)
-        self.__controlled_piece = Piece(4, 0, piece_color)
+        self.__controlled_piece = Piece(3, -2, piece_color)
 
         self.__addPieceToGrid(self.__controlled_piece)
 

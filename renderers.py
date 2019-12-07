@@ -138,6 +138,9 @@ class GraphicsRenderer:
                 self.__grid_lines_thickness)
 
     def __renderBlock(self, block):
+        if block.getY() < 0:
+            return
+
         x = block.getX() * self.__grid_block_size +\
             self.__grid_start_x
         y = block.getY() * self.__grid_block_size +\
