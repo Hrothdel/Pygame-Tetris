@@ -1,4 +1,5 @@
 import pygame
+import math
 from entities import Block
 
 class GraphicsRenderer:
@@ -6,12 +7,12 @@ class GraphicsRenderer:
         self.__screen_width = width
         self.__screen_height = height
 
-        self.__grid_width = width / 3
+        self.__grid_width = math.floor(width / 3)
         self.__grid_block_size = 0
         self.__grid_border_thickness = 9
 
-        self.__side_panel_left_width = width / 3
-        self.__side_panel_right_width = width / 3
+        self.__side_panel_left_width = self.__grid_width
+        self.__side_panel_right_width = self.__grid_width
 
         self.__grid_border_color = pygame.Color(200, 200, 200)
         self.__grid_lines_color = pygame.Color(200, 200, 200)
@@ -28,21 +29,21 @@ class GraphicsRenderer:
         self.__grid_rows = grid_rows
         self.__grid_columns = grid_columns
 
-        vertical_space = (self.__screen_height -
-            self.__grid_border_thickness * 2) / grid_rows
-        horizontal_space = (self.__grid_width -
-            self.__grid_border_thickness * 2) / grid_columns
+        vertical_space = math.floor((self.__screen_height -
+            self.__grid_border_thickness * 2) / grid_rows)
+        horizontal_space = math.floor((self.__grid_width -
+            self.__grid_border_thickness * 2) / grid_columns)
 
         self.__grid_block_size = min(vertical_space,
             horizontal_space)
 
-        vertical_margin = (self.__screen_height -
+        vertical_margin = math.floor((self.__screen_height -
             self.__grid_border_thickness * 2 -
-            self.__grid_block_size * grid_rows) / 2
+            self.__grid_block_size * grid_rows) / 2)
 
-        horizontal_margin = (self.__grid_width -
+        horizontal_margin = math.floor((self.__grid_width -
             self.__grid_border_thickness * 2 -
-            self.__grid_block_size * grid_columns) / 2
+            self.__grid_block_size * grid_columns) / 2)
 
         self.__grid_vertical_margin = vertical_margin
         self.__grid_horizontal_margin = horizontal_margin
