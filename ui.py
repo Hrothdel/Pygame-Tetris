@@ -30,6 +30,7 @@ class UI:
             pygame.K_w: self.__service.rotateClockwise,
             pygame.K_k: self.__service.rotateClockwise,
             pygame.K_q: self.__service.rotateCounterclockwise,
+            pygame.K_SPACE: self.__service.dropPiece,
         }
 
     def __quit(self):

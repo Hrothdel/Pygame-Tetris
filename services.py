@@ -107,6 +107,12 @@ class GameService:
     def moveDown(self):
         self.__movePiece(0, 1)
 
+    def dropPiece(self):
+        piece = self.__controlled_piece
+
+        while piece == self.__controlled_piece:
+            self.__movePiece(0, 1)
+
     def rotateClockwise(self):
         piece = self.__controlled_piece
 
