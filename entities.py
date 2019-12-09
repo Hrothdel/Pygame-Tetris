@@ -1,34 +1,44 @@
-class Piece:
-    def __init__(self, position_x, position_y, color):
-        self.__blocks = [
-            Block(position_x, position_y, color),
-            Block(position_x + 1, position_y, color),
-            Block(position_x + 2, position_y, color),
-            Block(position_x + 1, position_y + 1, color)
-        ]
+import pygame
+import math
 
-        self.__rotation_point_x = position_x + 1
-        self.__rotation_point_y = position_y
+class Piece:
+    def __init__(self, position_x, position_y,
+        rotation_point_x, rotation_point_y, color, blocks):
+        self.__blocks = blocks
+
+        for block in self.__blocks:
+            block.setX(block.getX() + position_x)
+            block.setY(block.getY() + position_y)
+            block.setColor(color)
+
+        self.__rotation_point_x = position_x +\
+            rotation_point_x
+        self.__rotation_point_y = position_y +\
+            rotation_point_y
 
     def rotateClockwise(self):
         for block in self.__blocks:
             block_x = block.getX()
             block_y = block.getY()
 
-            block.setX((block_y - self.__rotation_point_y) *
-                (-1) + self.__rotation_point_x)
-            block.setY((block_x - self.__rotation_point_x) +
-                self.__rotation_point_y)
+            block.setX(math.floor((block_y -
+                self.__rotation_point_y) *
+                (-1) + self.__rotation_point_x))
+            block.setY(math.floor((block_x -
+                self.__rotation_point_x) +
+                self.__rotation_point_y))
 
     def rotateCounterclockwise(self):
         for block in self.__blocks:
             block_x = block.getX()
             block_y = block.getY()
 
-            block.setX((block_y - self.__rotation_point_y) +
-                self.__rotation_point_x)
-            block.setY((block_x - self.__rotation_point_x) *
-                (-1) + self.__rotation_point_y)
+            block.setX(math.floor((block_y -
+                self.__rotation_point_y) +
+                self.__rotation_point_x))
+            block.setY(math.floor((block_x -
+                self.__rotation_point_x) *
+                (-1) + self.__rotation_point_y))
 
     def getBlocks(self):
         return self.__blocks
@@ -42,7 +52,8 @@ class Piece:
         self.__rotation_point_y += position_y
 
 class Block:
-    def __init__(self, position_x, position_y, color):
+    def __init__(self, position_x, position_y,
+        color = pygame.Color(100, 100, 100)):
         self.__x = position_x
         self.__y = position_y
         self.__color = color
@@ -61,3 +72,6 @@ class Block:
 
     def getColor(self):
         return self.__color
+
+    def setColor(self, color):
+        self.__color = color

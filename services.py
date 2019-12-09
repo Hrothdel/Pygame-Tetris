@@ -1,4 +1,5 @@
 import pygame
+import random
 from entities import Piece
 from entities import Block
 from exceptions import Collision
@@ -11,6 +12,190 @@ class GameService:
         self.__initializeGrid()
 
         self.__controlled_piece = None
+
+        self.__piece_pool = [
+            { # T
+                'position_x': 3,
+                'position_y': -2,
+                'rotation_point_x': 1,
+                'rotation_point_y': 1,
+                'blocks':[
+                    { 
+                        'x': 1,
+                        'y': 0,
+                    },
+                    { 
+                        'x': 0,
+                        'y': 1,
+                    },
+                    { 
+                        'x': 1,
+                        'y': 1,
+                    },
+                    { 
+                        'x': 2,
+                        'y': 1,
+                    }
+                ],
+                'color': [255, 0, 0]
+            },
+
+            { # Z
+                'position_x': 3,
+                'position_y': -2,
+                'rotation_point_x': 1,
+                'rotation_point_y': 1,
+                'blocks':[
+                    { 
+                        'x': 0,
+                        'y': 0,
+                    },
+                    { 
+                        'x': 1,
+                        'y': 0,
+                    },
+                    { 
+                        'x': 1,
+                        'y': 1,
+                    },
+                    { 
+                        'x': 2,
+                        'y': 1,
+                    }
+                ],
+                'color': [255, 255, 0]
+            },
+
+            { # S
+                'position_x': 3,
+                'position_y': -2,
+                'rotation_point_x': 1,
+                'rotation_point_y': 1,
+                'blocks':[
+                    { 
+                        'x': 1,
+                        'y': 0,
+                    },
+                    { 
+                        'x': 2,
+                        'y': 0,
+                    },
+                    { 
+                        'x': 0,
+                        'y': 1,
+                    },
+                    { 
+                        'x': 1,
+                        'y': 1,
+                    }
+                ],
+                'color': [255, 100, 0]
+            },
+
+            { # O
+                'position_x': 3,
+                'position_y': -2,
+                'rotation_point_x': 0.5,
+                'rotation_point_y': 0.5,
+                'blocks':[
+                    { 
+                        'x': 0,
+                        'y': 0,
+                    },
+                    { 
+                        'x': 1,
+                        'y': 0,
+                    },
+                    { 
+                        'x': 0,
+                        'y': 1,
+                    },
+                    { 
+                        'x': 1,
+                        'y': 1,
+                    }
+                ],
+                'color': [0, 255, 0]
+            },
+
+            { # I
+                'position_x': 2,
+                'position_y': -2,
+                'rotation_point_x': 1.5,
+                'rotation_point_y': 0.5,
+                'blocks':[
+                    { 
+                        'x': 0,
+                        'y': 0,
+                    },
+                    { 
+                        'x': 1,
+                        'y': 0,
+                    },
+                    { 
+                        'x': 2,
+                        'y': 0,
+                    },
+                    { 
+                        'x': 3,
+                        'y': 0,
+                    }
+                ],
+                'color': [0, 100, 255]
+            },
+
+            { # L
+                'position_x': 3,
+                'position_y': -2,
+                'rotation_point_x': 1,
+                'rotation_point_y': 1,
+                'blocks':[
+                    { 
+                        'x': 0,
+                        'y': 0,
+                    },
+                    { 
+                        'x': 0,
+                        'y': 1,
+                    },
+                    { 
+                        'x': 1,
+                        'y': 1,
+                    },
+                    { 
+                        'x': 2,
+                        'y': 1,
+                    }
+                ],
+                'color': [0, 0, 255]
+            },
+
+            { # J
+                'position_x': 3,
+                'position_y': -2,
+                'rotation_point_x': 1,
+                'rotation_point_y': 1,
+                'blocks':[
+                    { 
+                        'x': 2,
+                        'y': 0,
+                    },
+                    { 
+                        'x': 0,
+                        'y': 1,
+                    },
+                    { 
+                        'x': 1,
+                        'y': 1,
+                    },
+                    { 
+                        'x': 2,
+                        'y': 1,
+                    }
+                ],
+                'color': [200, 150, 0]
+            },
+        ]
 
     def __initializeGrid(self):
         self.__grid = []
@@ -77,8 +262,22 @@ class GameService:
             self.__addBlockToGrid(block)
 
     def __spawnControlledPiece(self):
-        piece_color = pygame.Color(255, 0, 0)
-        self.__controlled_piece = Piece(3, -2, piece_color)
+        piece = self.__piece_pool[random.randint(0,
+            len(self.__piece_pool) - 1)]
+
+        position_x = piece['position_x']
+        position_y = piece['position_y']
+        rotation_point_x = piece['rotation_point_x']
+        rotation_point_y = piece['rotation_point_y']
+        color = pygame.Color(piece['color'][0], piece['color'][1],
+                             piece['color'][2])
+        blocks = []
+
+        for block_info in piece['blocks']:
+            blocks.append(Block(block_info['x'], block_info['y']))
+
+        self.__controlled_piece = Piece(position_x, position_y,
+            rotation_point_x, rotation_point_y, color, blocks)
 
         self.__addPieceToGrid(self.__controlled_piece)
 
