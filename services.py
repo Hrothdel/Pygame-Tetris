@@ -1,5 +1,6 @@
 import pygame
 import random
+import time
 from entities import Piece
 from entities import Block
 from exceptions import Collision
@@ -12,6 +13,11 @@ class GameService:
         self.__initializeGrid()
 
         self.__controlled_piece = None
+
+        self.__gravity_interval = 0.7
+        self.__gravity_last_time = -1
+
+        self.__pieces_placed = 0
 
         self.__piece_pool = [
             { # T
@@ -295,7 +301,8 @@ class GameService:
                 self.__addPieceToGrid(piece)
 
                 if position_y == 1:
-                    self.__spawnControlledPiece()
+                    self.__controlled_piece = None
+                    self.__pieces_placed += 1
 
     def moveLeft(self):
         self.__movePiece(-1, 0)
@@ -339,6 +346,19 @@ class GameService:
     def getControlledPiece(self):
         return self.__controlled_piece
 
+    def __startGravity(self):
+        self.__gravity_last_time = time.clock()
+
+    def __handleGravity(self):
+        if self.__gravity_last_time != -1:
+            if time.clock() - self.__gravity_last_time >=\
+                self.__gravity_interval:
+                self.moveDown()
+                self.__gravity_last_time = time.clock()
+
     def update(self):
         if self.__controlled_piece == None:
             self.__spawnControlledPiece()
+            self.__startGravity()
+
+        self.__handleGravity()
