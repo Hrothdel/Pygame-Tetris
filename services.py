@@ -26,19 +26,19 @@ class GameService:
                 'rotation_point_x': 1,
                 'rotation_point_y': 1,
                 'blocks':[
-                    { 
+                    {
                         'x': 1,
                         'y': 0,
                     },
-                    { 
+                    {
                         'x': 0,
                         'y': 1,
                     },
-                    { 
+                    {
                         'x': 1,
                         'y': 1,
                     },
-                    { 
+                    {
                         'x': 2,
                         'y': 1,
                     }
@@ -52,19 +52,19 @@ class GameService:
                 'rotation_point_x': 1,
                 'rotation_point_y': 1,
                 'blocks':[
-                    { 
+                    {
                         'x': 0,
                         'y': 0,
                     },
-                    { 
+                    {
                         'x': 1,
                         'y': 0,
                     },
-                    { 
+                    {
                         'x': 1,
                         'y': 1,
                     },
-                    { 
+                    {
                         'x': 2,
                         'y': 1,
                     }
@@ -78,19 +78,19 @@ class GameService:
                 'rotation_point_x': 1,
                 'rotation_point_y': 1,
                 'blocks':[
-                    { 
+                    {
                         'x': 1,
                         'y': 0,
                     },
-                    { 
+                    {
                         'x': 2,
                         'y': 0,
                     },
-                    { 
+                    {
                         'x': 0,
                         'y': 1,
                     },
-                    { 
+                    {
                         'x': 1,
                         'y': 1,
                     }
@@ -104,19 +104,19 @@ class GameService:
                 'rotation_point_x': 0.5,
                 'rotation_point_y': 0.5,
                 'blocks':[
-                    { 
+                    {
                         'x': 0,
                         'y': 0,
                     },
-                    { 
+                    {
                         'x': 1,
                         'y': 0,
                     },
-                    { 
+                    {
                         'x': 0,
                         'y': 1,
                     },
-                    { 
+                    {
                         'x': 1,
                         'y': 1,
                     }
@@ -130,19 +130,19 @@ class GameService:
                 'rotation_point_x': 1.5,
                 'rotation_point_y': 0.5,
                 'blocks':[
-                    { 
+                    {
                         'x': 0,
                         'y': 0,
                     },
-                    { 
+                    {
                         'x': 1,
                         'y': 0,
                     },
-                    { 
+                    {
                         'x': 2,
                         'y': 0,
                     },
-                    { 
+                    {
                         'x': 3,
                         'y': 0,
                     }
@@ -156,19 +156,19 @@ class GameService:
                 'rotation_point_x': 1,
                 'rotation_point_y': 1,
                 'blocks':[
-                    { 
+                    {
                         'x': 0,
                         'y': 0,
                     },
-                    { 
+                    {
                         'x': 0,
                         'y': 1,
                     },
-                    { 
+                    {
                         'x': 1,
                         'y': 1,
                     },
-                    { 
+                    {
                         'x': 2,
                         'y': 1,
                     }
@@ -182,19 +182,19 @@ class GameService:
                 'rotation_point_x': 1,
                 'rotation_point_y': 1,
                 'blocks':[
-                    { 
+                    {
                         'x': 2,
                         'y': 0,
                     },
-                    { 
+                    {
                         'x': 0,
                         'y': 1,
                     },
-                    { 
+                    {
                         'x': 1,
                         'y': 1,
                     },
-                    { 
+                    {
                         'x': 2,
                         'y': 1,
                     }
@@ -248,7 +248,7 @@ class GameService:
 
         for block in blocks:
             self.__removeBlockFromGrid(block)
-    
+
     def __checkPieceCollision(self, piece):
         blocks = piece.getBlocks()
 
@@ -287,6 +287,45 @@ class GameService:
 
         self.__addPieceToGrid(self.__controlled_piece)
 
+    def __clearLines(self, lines):
+        lines.sort()
+
+        for line_index in lines:
+            for index in range(line_index, 0, -1):
+                self.__grid[index] = self.__grid[index-1][:]
+                for cell in self.__grid[index]:
+                    if type(cell) == Block:
+                        cell.setY(cell.getY() + 1)
+
+    def __checkLineClears(self, lines):
+        cleared_lines = []
+
+        for line_index in lines:
+            line = self.__grid[line_index]
+
+            cleared = True
+            for cell in line:
+                if cell == 0:
+                    cleared = False
+
+            if cleared:
+                cleared_lines.append(line_index)
+
+        return cleared_lines
+
+    def __placePiece(self):
+        blocks = self.__controlled_piece.getBlocks()
+        lines = []
+
+        for block in blocks:
+            block_line = block.getY() + self.__grid_offset_y
+            if block_line not in lines:
+                lines.append(block_line)
+
+        self.__clearLines(self.__checkLineClears(lines))
+        self.__controlled_piece = None
+        self.__pieces_placed += 1
+
     def __movePiece(self, position_x, position_y):
         piece = self.__controlled_piece
 
@@ -301,8 +340,7 @@ class GameService:
                 self.__addPieceToGrid(piece)
 
                 if position_y == 1:
-                    self.__controlled_piece = None
-                    self.__pieces_placed += 1
+                    self.__placePiece()
 
     def moveLeft(self):
         self.__movePiece(-1, 0)
