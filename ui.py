@@ -46,7 +46,8 @@ class UI:
             self.__service.update()
 
             grid = self.__service.getGrid()
-            self.__renderer.render(grid)
+            score = self.__service.getScore()
+            self.__renderer.render(grid, score)
 
         self.__quit()
 

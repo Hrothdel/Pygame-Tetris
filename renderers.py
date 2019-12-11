@@ -22,8 +22,10 @@ class GraphicsRenderer:
         pygame.init()
 
     def start(self):
-        self.__screen = pygame.display.set_mode((self.__screen_width,
+        self.__screen = pygame.display.set_mode((
+            self.__screen_width,
             self.__screen_height))
+        self.__score_font = pygame.font.Font(None, 40)
 
     def updateGridSize(self, grid_rows, grid_columns):
         self.__grid_rows = grid_rows
@@ -164,9 +166,17 @@ class GraphicsRenderer:
         self.__renderGridLines()
         self.__renderGridBlocks(grid)
 
-    def render(self, grid):
+    def __renderScore(self, score):
+        score_surface = self.__score_font.render("Score: " +
+            str(score), True, (255, 255, 255))
+        score_position = (100, 200)
+
+        self.__screen.blit(score_surface, score_position)
+
+    def render(self, grid, score):
         self.__screen.fill(self.__background_color)
 
         self.__renderGrid(grid)
+        self.__renderScore(score)
 
         pygame.display.flip()

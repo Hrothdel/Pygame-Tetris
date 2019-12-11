@@ -18,6 +18,9 @@ class GameService:
         self.__gravity_last_time = -1
 
         self.__pieces_placed = 0
+        self.__score = 0
+        self.__soft_drop_cells = 0
+        self.__hard_drop_cells = 0
 
         self.__piece_pool = [
             { # T
@@ -231,6 +234,9 @@ class GameService:
     def getGrid(self):
         return self.__grid
 
+    def getScore(self):
+        return self.__score
+
     def __removeBlockFromGrid(self, block):
         position_x = block.getX() + self.__grid_offset_x
         position_y = block.getY() + self.__grid_offset_y
@@ -313,6 +319,29 @@ class GameService:
 
         return cleared_lines
 
+    def __increaseScore(self, clears_number):
+        clear_values = {
+            0: 0,
+            1: 40,
+            2: 100,
+            3: 300,
+            4: 1200
+        }
+
+        clear_score = clear_values[clears_number]
+
+        soft_drop_score = self.__soft_drop_cells
+        hard_drop_score = self.__hard_drop_cells * 2
+
+        soft_drop_score = min(soft_drop_score, 20)
+        hard_drop_score = min(hard_drop_score, 40)
+
+        self.__score += clear_score + soft_drop_score +\
+            hard_drop_score
+
+        self.__soft_drop_cells = 0
+        self.__hard_drop_cells = 0
+
     def __placePiece(self):
         blocks = self.__controlled_piece.getBlocks()
         lines = []
@@ -322,7 +351,9 @@ class GameService:
             if block_line not in lines:
                 lines.append(block_line)
 
-        self.__clearLines(self.__checkLineClears(lines))
+        cleared_lines = self.__checkLineClears(lines)
+        self.__clearLines(cleared_lines)
+        self.__increaseScore(len(cleared_lines))
         self.__controlled_piece = None
         self.__pieces_placed += 1
 
@@ -350,12 +381,16 @@ class GameService:
 
     def moveDown(self):
         self.__movePiece(0, 1)
+        if self.__controlled_piece != None:
+            self.__soft_drop_cells += 1
 
     def dropPiece(self):
         piece = self.__controlled_piece
 
         while piece == self.__controlled_piece:
             self.__movePiece(0, 1)
+            self.__hard_drop_cells += 1
+        self.__hard_drop_cells -= 1
 
     def rotateClockwise(self):
         piece = self.__controlled_piece
@@ -391,7 +426,7 @@ class GameService:
         if self.__gravity_last_time != -1:
             if time.clock() - self.__gravity_last_time >=\
                 self.__gravity_interval:
-                self.moveDown()
+                self.__movePiece(0, 1)
                 self.__gravity_last_time = time.clock()
 
     def update(self):
