@@ -166,17 +166,22 @@ class GraphicsRenderer:
         self.__renderGridLines()
         self.__renderGridBlocks(grid)
 
-    def __renderScore(self, score):
-        score_surface = self.__score_font.render("Score: " +
-            str(score), True, (255, 255, 255))
-        score_position = (100, 200)
+    def __renderScore(self, scores):
+        vertical_offset = 0
+        vertical_distance = 50
 
-        self.__screen.blit(score_surface, score_position)
+        for score in scores:
+            score_surface = self.__score_font.render("Score: " +
+                str(score), True, (255, 255, 255))
+            score_position = (100, 200 + vertical_offset)
+            vertical_offset += vertical_distance
 
-    def render(self, grid, score):
+            self.__screen.blit(score_surface, score_position)
+
+    def render(self, grid, scores):
         self.__screen.fill(self.__background_color)
 
         self.__renderGrid(grid)
-        self.__renderScore(score)
+        self.__renderScore(scores)
 
         pygame.display.flip()

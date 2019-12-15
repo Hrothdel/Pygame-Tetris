@@ -1,5 +1,5 @@
-from services import GameServer
-from services import GameServerHandler
+from networking import GameServer
+from networking import GameServerHandler
 from services import GameService
 
 server = GameServer(("localhost", 9999), GameServerHandler, 2)

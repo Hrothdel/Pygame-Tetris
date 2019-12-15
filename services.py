@@ -12,15 +12,26 @@ class GameService:
 
         self.__initializeGrid()
 
-        self.__controlled_piece = None
+        self._controlled_pieces = [None]
+        self._player_index = 0
+        self._active = True
 
         self.__gravity_interval = 0.7
         self.__gravity_last_time = -1
 
         self.__pieces_placed = 0
-        self.__score = 0
-        self.__soft_drop_cells = 0
-        self.__hard_drop_cells = 0
+        self._score = [0]
+        self._soft_drop_cells = [0]
+        self._hard_drop_cells = [0]
+
+        self._actions = {
+            "right": self.moveRight,
+            "left": self.moveLeft,
+            "rotate": self.rotateClockwise,
+            "rotatecc": self.rotateCounterclockwise,
+            "soft": self.moveDown,
+            "hard": self.dropPiece,
+        }
 
         self.__piece_pool = [
             { # T
@@ -234,8 +245,8 @@ class GameService:
     def getGrid(self):
         return self.__grid
 
-    def getScore(self):
-        return self.__score
+    def getScores(self):
+        return self._score
 
     def __removeBlockFromGrid(self, block):
         position_x = block.getX() + self.__grid_offset_x
@@ -273,9 +284,12 @@ class GameService:
         for block in blocks:
             self.__addBlockToGrid(block)
 
-    def __spawnControlledPiece(self):
-        piece = self.__piece_pool[random.randint(0,
-            len(self.__piece_pool) - 1)]
+    def _getPieceToSpawn(self):
+        return random.randint(0, len(self.__piece_pool) - 1)
+
+    def _spawnControlledPiece(self, piece_index,
+        controlling_player_index):
+        piece = self.__piece_pool[piece_index]
 
         position_x = piece['position_x']
         position_y = piece['position_y']
@@ -288,10 +302,12 @@ class GameService:
         for block_info in piece['blocks']:
             blocks.append(Block(block_info['x'], block_info['y']))
 
-        self.__controlled_piece = Piece(position_x, position_y,
-            rotation_point_x, rotation_point_y, color, blocks)
+        self._controlled_pieces[controlling_player_index] =\
+            Piece(position_x, position_y, rotation_point_x,
+            rotation_point_y, color, blocks)
 
-        self.__addPieceToGrid(self.__controlled_piece)
+        self.__addPieceToGrid(
+            self._controlled_pieces[controlling_player_index])
 
     def __clearLines(self, lines):
         lines.sort()
@@ -319,7 +335,7 @@ class GameService:
 
         return cleared_lines
 
-    def __increaseScore(self, clears_number):
+    def __increaseScore(self, clears_number, index):
         clear_values = {
             0: 0,
             1: 40,
@@ -330,20 +346,21 @@ class GameService:
 
         clear_score = clear_values[clears_number]
 
-        soft_drop_score = self.__soft_drop_cells
-        hard_drop_score = self.__hard_drop_cells * 2
+        soft_drop_score = self._soft_drop_cells[index]
+        hard_drop_score = self._hard_drop_cells[index] * 2
 
         soft_drop_score = min(soft_drop_score, 20)
         hard_drop_score = min(hard_drop_score, 40)
 
-        self.__score += clear_score + soft_drop_score +\
+        self._score[index] += clear_score + soft_drop_score +\
             hard_drop_score
 
-        self.__soft_drop_cells = 0
-        self.__hard_drop_cells = 0
+        self._soft_drop_cells[index] = 0
+        self._hard_drop_cells[index] = 0
 
-    def __placePiece(self):
-        blocks = self.__controlled_piece.getBlocks()
+    def _placePiece(self, index):
+        blocks = self._controlled_pieces[index].\
+            getBlocks()
         lines = []
 
         for block in blocks:
@@ -353,12 +370,12 @@ class GameService:
 
         cleared_lines = self.__checkLineClears(lines)
         self.__clearLines(cleared_lines)
-        self.__increaseScore(len(cleared_lines))
-        self.__controlled_piece = None
+        self.__increaseScore(len(cleared_lines), index)
+        self._controlled_pieces[index] = None
         self.__pieces_placed += 1
 
-    def __movePiece(self, position_x, position_y):
-        piece = self.__controlled_piece
+    def __movePiece(self, position_x, position_y, index):
+        piece = self._controlled_pieces[index]
 
         if type(piece) == Piece:
             self.__removePieceFromGrid(piece)
@@ -371,29 +388,30 @@ class GameService:
                 self.__addPieceToGrid(piece)
 
                 if position_y == 1:
-                    self.__placePiece()
+                    self._placePiece(index)
 
-    def moveLeft(self):
-        self.__movePiece(-1, 0)
+    def moveLeft(self, index):
+        self.__movePiece(-1, 0, index)
 
-    def moveRight(self):
-        self.__movePiece(1, 0)
+    def moveRight(self, index):
+        self.__movePiece(1, 0, index)
 
-    def moveDown(self):
-        self.__movePiece(0, 1)
-        if self.__controlled_piece != None:
-            self.__soft_drop_cells += 1
+    def moveDown(self, index):
+        self.__movePiece(0, 1, index)
+        if self._controlled_pieces[index] != None:
+            self._soft_drop_cells[index] += 1
 
-    def dropPiece(self):
-        piece = self.__controlled_piece
+    def dropPiece(self, index):
+        piece = self._controlled_pieces[index]
 
-        while piece == self.__controlled_piece:
-            self.__movePiece(0, 1)
-            self.__hard_drop_cells += 1
-        self.__hard_drop_cells -= 1
+        while piece ==\
+            self._controlled_pieces[index]:
+            self.__movePiece(0, 1, index)
+            self._hard_drop_cells[index] += 1
+        self._hard_drop_cells[index] -= 1
 
-    def rotateClockwise(self):
-        piece = self.__controlled_piece
+    def rotateClockwise(self, index):
+        piece = self._controlled_pieces[index]
 
         self.__removePieceFromGrid(piece)
         piece.rotateClockwise()
@@ -404,8 +422,8 @@ class GameService:
             piece.rotateCounterclockwise()
             self.__addPieceToGrid(piece)
 
-    def rotateCounterclockwise(self):
-        piece = self.__controlled_piece
+    def rotateCounterclockwise(self, index):
+        piece = self._controlled_pieces[index]
 
         self.__removePieceFromGrid(piece)
         piece.rotateCounterclockwise()
@@ -416,22 +434,33 @@ class GameService:
             piece.rotateClockwise()
             self.__addPieceToGrid(piece)
 
-    def getControlledPiece(self):
-        return self.__controlled_piece
+    def uiAction(self, string):
+        string += " " + str(self._player_index)
+        self.handleAction(string)
 
-    def __startGravity(self):
+    def handleAction(self, string):
+        parts = string.split()
+        action = parts[0]
+        action_player = int(parts[1])
+
+        if action_player != self._player_index or\
+            self._active:
+            self._actions[action](action_player)
+
+    def _startGravity(self):
         self.__gravity_last_time = time.clock()
 
     def __handleGravity(self):
-        if self.__gravity_last_time != -1:
-            if time.clock() - self.__gravity_last_time >=\
-                self.__gravity_interval:
-                self.__movePiece(0, 1)
-                self.__gravity_last_time = time.clock()
+        if time.clock() - self.__gravity_last_time >=\
+            self.__gravity_interval:
+            for index in range(len(self._controlled_pieces)):
+                self.__movePiece(0, 1, index)
+            self.__gravity_last_time = time.clock()
 
     def update(self):
-        if self.__controlled_piece == None:
-            self.__spawnControlledPiece()
-            self.__startGravity()
+        if self._active and\
+            self._controlled_pieces[self._player_index] == None:
+            self._spawnControlledPiece(self._getPieceToSpawn(),
+                self._player_index)
 
         self.__handleGravity()

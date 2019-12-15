@@ -17,20 +17,20 @@ class UI:
         self.__exit = False
 
         self.__binds = {
-            pygame.K_LEFT: self.__service.moveLeft,
-            pygame.K_a: self.__service.moveLeft,
-            pygame.K_h: self.__service.moveLeft,
-            pygame.K_RIGHT: self.__service.moveRight,
-            pygame.K_d: self.__service.moveRight,
-            pygame.K_l: self.__service.moveRight,
-            pygame.K_DOWN: self.__service.moveDown,
-            pygame.K_s: self.__service.moveDown,
-            pygame.K_j: self.__service.moveDown,
-            pygame.K_UP: self.__service.rotateClockwise,
-            pygame.K_w: self.__service.rotateClockwise,
-            pygame.K_k: self.__service.rotateClockwise,
-            pygame.K_q: self.__service.rotateCounterclockwise,
-            pygame.K_SPACE: self.__service.dropPiece,
+            pygame.K_LEFT: "left",
+            pygame.K_a: "left",
+            pygame.K_h: "left",
+            pygame.K_RIGHT: "right",
+            pygame.K_d: "right",
+            pygame.K_l: "right",
+            pygame.K_DOWN: "soft",
+            pygame.K_s: "soft",
+            pygame.K_j: "soft",
+            pygame.K_UP: "rotate",
+            pygame.K_w: "rotate",
+            pygame.K_k: "rotate",
+            pygame.K_q: "rotatecc",
+            pygame.K_SPACE: "hard",
         }
 
     def __quit(self):
@@ -46,7 +46,7 @@ class UI:
             self.__service.update()
 
             grid = self.__service.getGrid()
-            score = self.__service.getScore()
+            score = self.__service.getScores()
             self.__renderer.render(grid, score)
 
         self.__quit()
@@ -57,4 +57,5 @@ class UI:
                 self.__exit = True
             if event.type == pygame.KEYDOWN:
                 if event.key in self.__binds:
-                    self.__binds[event.key]()
+                    self.__service.uiAction(
+                        self.__binds[event.key])
